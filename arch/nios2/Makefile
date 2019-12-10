@@ -65,7 +65,7 @@ install:
 define archhelp
   echo  '* vmImage         - Kernel-only image for U-Boot ($(KBUILD_IMAGE))'
   echo  '  install         - Install kernel using'
-  echo  '                     (your) ~/bin/$(INSTALLKERNEL) or'
-  echo  '                     (distribution) /sbin/$(INSTALLKERNEL) or'
+  echo  '                     (your) ~$(INSTALLKERNEL) or'
+  echo  '                     (distribution) $(INSTALLKERNEL) or'
   echo  '                     install to $$(INSTALL_PATH)'
 endef

@@ -168,7 +168,7 @@ BTF_OBJCOPY_PROBE := $(shell $(LLVM_OBJCOPY) --help 2>&1 | grep -i 'usage.*llvm'
 BTF_LLVM_PROBE := $(shell echo "int main() { return 0; }" | \
 			  $(CLANG) -target bpf -O2 -g -c -x c - -o ./llvm_btf_verify.o; \
 			  $(LLVM_READELF) -S ./llvm_btf_verify.o | grep BTF; \
-			  /bin/rm -f ./llvm_btf_verify.o)
+			  rm -f ./llvm_btf_verify.o)
 
 ifneq ($(BTF_LLVM_PROBE),)
 	BPF_CFLAGS += -g

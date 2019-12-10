@@ -198,7 +198,7 @@ ifdef INSTALL_PATH
 	done;
 
 	@# Ask all targets to emit their test scripts
-	echo "#!/bin/sh" > $(ALL_SCRIPT)
+	echo "#!sh" > $(ALL_SCRIPT)
 	echo "BASE_DIR=\$$(realpath \$$(dirname \$$0))" >> $(ALL_SCRIPT)
 	echo "cd \$$BASE_DIR" >> $(ALL_SCRIPT)
 	echo ". ./kselftest/runner.sh" >> $(ALL_SCRIPT)

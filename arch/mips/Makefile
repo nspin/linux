@@ -396,7 +396,7 @@ $(bootz-y): $(vmlinux-32) FORCE
 else
 vmlinuz: FORCE
 	@echo '   CONFIG_SYS_SUPPORTS_ZBOOT is not enabled'
-	/bin/false
+	false
 endif
 
 
