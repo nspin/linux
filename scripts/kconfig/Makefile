@@ -29,6 +29,17 @@ xconfig: $(obj)/qconf
 gconfig: $(obj)/gconf
 	$< $(silent) $(Kconfig)
 
+PHONY += scriptconfig iscriptconfig
+
+ifneq ($(filter scriptconfig,$(MAKECMDGOALS)),)
+ifndef SCRIPT
+$(error Use "make scriptconfig [PYTHON_ARGS=<args>] SCRIPT=<path> [SCRIPT_ARGS=<args>]")
+endif
+endif
+
+scriptconfig:
+	$(Q)$(PYTHON3) $(PYTHON_ARGS) $(SCRIPT) $(Kconfig) $(SCRIPT_ARGS)
+
 menuconfig: $(obj)/mconf
 	$< $(silent) $(Kconfig)
 
