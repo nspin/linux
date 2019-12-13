@@ -147,7 +147,7 @@ config ATM_ENI_BURST_RX_2W
 	  8W are also set may or may not improve throughput.
 
 config ATM_FIRESTREAM
-	tristate "Fujitsu FireStream (FS50/FS155) "
+	tristate "Fujitsu FireStream (FS50/FS155)"
 	depends on PCI && VIRT_TO_BUS
 	help
 	  Driver for the Fujitsu FireStream 155 (MB86697) and
