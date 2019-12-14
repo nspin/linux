@@ -1,0 +1,9 @@
+menu "TrustZone Trusted OS"
+
+config ARM64_TOS
+	bool "TrustZone Trusted OS"
+	default n
+	help
+	  Support running as a TrustZone Trusted OS
+
+endmenu
