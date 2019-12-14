@@ -69,6 +69,9 @@ struct rseq;
 union bpf_attr;
 struct io_uring_params;
 struct clone_args;
+struct arm_smccc_regs;
+struct arm_smccc_res;
+struct arm_smccc_quirk;
 
 #include <linux/types.h>
 #include <linux/aio_abi.h>
@@ -1000,6 +1003,8 @@ asmlinkage long sys_fspick(int dfd, const char __user *path, unsigned int flags)
 asmlinkage long sys_pidfd_send_signal(int pidfd, int sig,
 				       siginfo_t __user *info,
 				       unsigned int flags);
+
+asmlinkage long sys_smccc_smc(struct arm_smccc_regs __user *regs, struct arm_smccc_res __user *res, struct arm_smccc_quirk __user *quirk);
 
 /*
  * Architecture-specific system calls
