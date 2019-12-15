@@ -394,6 +394,9 @@ static void erratum_set_next_event_tval_generic(const int access, unsigned long 
 	if (access == ARCH_TIMER_PHYS_ACCESS) {
 		cval = evt + arch_counter_get_cntpct();
 		write_sysreg(cval, cntp_cval_el0);
+    } else if (access == ARCH_TIMER_SEC_ACCESS) {
+		cval = evt + arch_counter_get_cntpct();
+		write_sysreg(cval, cntps_cval_el0);
 	} else {
 		cval = evt + arch_counter_get_cntvct();
 		write_sysreg(cval, cntv_cval_el0);
@@ -413,6 +416,13 @@ static __maybe_unused int erratum_set_next_event_tval_phys(unsigned long evt,
 					    struct clock_event_device *clk)
 {
 	erratum_set_next_event_tval_generic(ARCH_TIMER_PHYS_ACCESS, evt, clk);
+	return 0;
+}
+
+static __maybe_unused int erratum_set_next_event_tval_sec(unsigned long evt,
+					    struct clock_event_device *clk)
+{
+	erratum_set_next_event_tval_generic(ARCH_TIMER_SEC_ACCESS, evt, clk);
 	return 0;
 }
 
@@ -650,6 +660,13 @@ static irqreturn_t arch_timer_handler_phys(int irq, void *dev_id)
 	return timer_handler(ARCH_TIMER_PHYS_ACCESS, evt);
 }
 
+static irqreturn_t arch_timer_handler_sec(int irq, void *dev_id)
+{
+	struct clock_event_device *evt = dev_id;
+
+	return timer_handler(ARCH_TIMER_SEC_ACCESS, evt);
+}
+
 static irqreturn_t arch_timer_handler_phys_mem(int irq, void *dev_id)
 {
 	struct clock_event_device *evt = dev_id;
@@ -686,6 +703,11 @@ static int arch_timer_shutdown_phys(struct clock_event_device *clk)
 	return timer_shutdown(ARCH_TIMER_PHYS_ACCESS, clk);
 }
 
+static int arch_timer_shutdown_sec(struct clock_event_device *clk)
+{
+	return timer_shutdown(ARCH_TIMER_SEC_ACCESS, clk);
+}
+
 static int arch_timer_shutdown_virt_mem(struct clock_event_device *clk)
 {
 	return timer_shutdown(ARCH_TIMER_MEM_VIRT_ACCESS, clk);
@@ -718,6 +740,13 @@ static int arch_timer_set_next_event_phys(unsigned long evt,
 					  struct clock_event_device *clk)
 {
 	set_next_event(ARCH_TIMER_PHYS_ACCESS, evt, clk);
+	return 0;
+}
+
+static int arch_timer_set_next_event_sec(unsigned long evt,
+					  struct clock_event_device *clk)
+{
+	set_next_event(ARCH_TIMER_SEC_ACCESS, evt, clk);
 	return 0;
 }
 
@@ -758,6 +787,10 @@ static void __arch_timer_setup(unsigned type,
 			sne = erratum_handler(set_next_event_virt);
 			break;
 		case ARCH_TIMER_PHYS_SECURE_PPI:
+			clk->set_state_shutdown = arch_timer_shutdown_sec;
+			clk->set_state_oneshot_stopped = arch_timer_shutdown_sec;
+			sne = erratum_handler(set_next_event_sec);
+            break;
 		case ARCH_TIMER_PHYS_NONSECURE_PPI:
 		case ARCH_TIMER_HYP_PPI:
 			clk->set_state_shutdown = arch_timer_shutdown_phys;
@@ -1079,6 +1112,9 @@ static int __init arch_timer_register(void)
 					 "arch_timer", arch_timer_evt);
 		break;
 	case ARCH_TIMER_PHYS_SECURE_PPI:
+		err = request_percpu_irq(ppi, arch_timer_handler_sec,
+					 "arch_timer", arch_timer_evt);
+		break;
 	case ARCH_TIMER_PHYS_NONSECURE_PPI:
 		err = request_percpu_irq(ppi, arch_timer_handler_phys,
 					 "arch_timer", arch_timer_evt);
@@ -1274,6 +1310,9 @@ static int __init arch_timer_of_init(struct device_node *np)
 	if (IS_ENABLED(CONFIG_ARM) &&
 	    of_property_read_bool(np, "arm,cpu-registers-not-fw-configured"))
 		arch_timer_uses_ppi = ARCH_TIMER_PHYS_SECURE_PPI;
+	else if (of_property_read_bool(np, "foo,use-secure")) {
+		arch_timer_uses_ppi = ARCH_TIMER_PHYS_SECURE_PPI;
+    }
 	else
 		arch_timer_uses_ppi = arch_timer_select_ppi();
 

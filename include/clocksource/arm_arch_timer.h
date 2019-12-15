@@ -45,6 +45,7 @@ enum arch_timer_spi_nr {
 #define ARCH_TIMER_VIRT_ACCESS		1
 #define ARCH_TIMER_MEM_PHYS_ACCESS	2
 #define ARCH_TIMER_MEM_VIRT_ACCESS	3
+#define ARCH_TIMER_SEC_ACCESS		4
 
 #define ARCH_TIMER_MEM_MAX_FRAMES	8
 

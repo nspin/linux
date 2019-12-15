@@ -53,10 +53,12 @@ struct arch_timer_erratum_workaround {
 	const void *id;
 	const char *desc;
 	u32 (*read_cntp_tval_el0)(void);
+	u32 (*read_cntps_tval_el1)(void);
 	u32 (*read_cntv_tval_el0)(void);
 	u64 (*read_cntpct_el0)(void);
 	u64 (*read_cntvct_el0)(void);
 	int (*set_next_event_phys)(unsigned long, struct clock_event_device *);
+	int (*set_next_event_sec)(unsigned long, struct clock_event_device *);
 	int (*set_next_event_virt)(unsigned long, struct clock_event_device *);
 };
 
@@ -67,6 +69,11 @@ DECLARE_PER_CPU(const struct arch_timer_erratum_workaround *,
 static inline notrace u32 arch_timer_read_cntp_tval_el0(void)
 {
 	return read_sysreg(cntp_tval_el0);
+}
+
+static inline notrace u32 arch_timer_read_cntps_tval_el1(void)
+{
+	return read_sysreg(cntps_tval_el1);
 }
 
 static inline notrace u32 arch_timer_read_cntv_tval_el0(void)
@@ -112,6 +119,15 @@ void arch_timer_reg_write_cp15(int access, enum arch_timer_reg reg, u32 val)
 			write_sysreg(val, cntp_tval_el0);
 			break;
 		}
+    } else if (access == ARCH_TIMER_SEC_ACCESS) {
+		switch (reg) {
+		case ARCH_TIMER_REG_CTRL:
+			write_sysreg(val, cntps_ctl_el1);
+			break;
+		case ARCH_TIMER_REG_TVAL:
+			write_sysreg(val, cntps_tval_el1);
+			break;
+		}
 	} else if (access == ARCH_TIMER_VIRT_ACCESS) {
 		switch (reg) {
 		case ARCH_TIMER_REG_CTRL:
@@ -135,6 +151,13 @@ u32 arch_timer_reg_read_cp15(int access, enum arch_timer_reg reg)
 			return read_sysreg(cntp_ctl_el0);
 		case ARCH_TIMER_REG_TVAL:
 			return arch_timer_reg_read_stable(cntp_tval_el0);
+		}
+    } else if (access == ARCH_TIMER_SEC_ACCESS) {
+		switch (reg) {
+		case ARCH_TIMER_REG_CTRL:
+			return read_sysreg(cntps_ctl_el1);
+		case ARCH_TIMER_REG_TVAL:
+			return arch_timer_reg_read_stable(cntps_tval_el1);
 		}
 	} else if (access == ARCH_TIMER_VIRT_ACCESS) {
 		switch (reg) {
