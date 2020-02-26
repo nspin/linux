@@ -121,6 +121,11 @@ u64 __init kaslr_early_init(u64 dt_phys)
 		return 0;
 	}
 
+	str = strstr(cmdline, "lamekaslr");
+	if (str == cmdline || (str > cmdline && *(str - 1) == ' ')) {
+        seed = ~0;
+	} else
+
 	/*
 	 * Mix in any entropy obtainable architecturally, open coded
 	 * since this runs extremely early.
@@ -215,6 +220,7 @@ static int __init kaslr_init(void)
 		break;
 	}
 
+	pr_info("_stext = 0x%lx\n", (size_t)_stext);
 	return 0;
 }
 core_initcall(kaslr_init)
